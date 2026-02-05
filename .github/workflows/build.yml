@@ -4,15 +4,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node
-        uses: actions/setup-node@v2
-      - name: Instalar Neu
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Instalar Neutralino CLI
         run: npm install -g @neutralinojs/neu
-      - name: Compilar
-        run: neu build
-      - name: Entregar
-        uses: actions/upload-artifact@v2
+      - name: Compilar Programa
+        run: |
+          neu build --release
+      - name: Subir el archivo final
+        uses: actions/upload-artifact@v3
         with:
           name: MiBingo-PC
           path: dist/
