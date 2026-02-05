@@ -1,1 +1,16 @@
-{"applicationId": "js.neutralino.bingo", "resourcesPath": "www", "defaultMode": "window", "modes": {"window": {"title": "Bingo Carlos V", "width": 1000, "height": 800}}, "cli": {"binaryName": "bingo"}}
+{
+  "applicationId": "js.neutralino.bingo",
+  "resourcesPath": "www",
+  "defaultMode": "window",
+  "modes": {
+    "window": {
+      "title": "Bingo Carlos V - Pro",
+      "width": 1000,
+      "height": 800,
+      "enableInspector": false
+    }
+  },
+  "cli": {
+    "binaryName": "bingo"
+  }
+}
