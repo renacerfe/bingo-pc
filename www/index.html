@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bingo & Slots Pro - Carlos V</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: radial-gradient(circle at center, #1a237e 0%, #000000 100%);
+      min-height: 100vh; color: white; margin: 0; padding-bottom: 50px;
+    }
+
+    .hologram-text { animation: hologram-flicker 3s infinite alternate; color: #81D4FA; }
+    @keyframes hologram-flicker {
+      0%, 100% { opacity: 1; text-shadow: 0 0 5px currentColor; }
+      20% { text-shadow: 0 0 20px currentColor, -2px 0 2px cyan; }
+    }
+
+    .btn-3d {
+      box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+      transition: all 0.1s ease; border-bottom: 4px solid rgba(0,0,0,0.2);
+    }
+    .btn-3d:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+
+    /* BINGO DISPLAY */
+    .main-display-container {
+      width: 100%; max-width: 500px; aspect-ratio: 1 / 1;
+      background: rgba(15, 23, 42, 0.9);
+      border: 6px solid #4FC3F7; border-radius: 30px;
+      box-shadow: 0 0 30px rgba(79, 195, 247, 0.3);
+    }
+
+    /* SLOTS - ESTILO "SIETE" (IMAGEN GIGANTE) */
+    .slot-machine-frame {
+        background: linear-gradient(180deg, #4A148C 0%, #311B92 100%);
+        border: 10px solid #FFD700; border-radius: 40px; padding: 25px;
+        box-shadow: 0 0 60px rgba(255, 215, 0, 0.5); position: relative;
+    }
+
+    .reels-container {
+        display: flex; gap: 10px; background: #000; padding: 15px; border-radius: 20px;
+    }
+
+    .reel-window {
+        width: 150px; height: 200px; /* Tamaño grande */
+        background: white; border-radius: 10px; overflow: hidden;
+        position: relative; border: 2px solid #555;
+    }
+
+    .reel-strip {
+        width: 100%; position: absolute; top: 0; left: 0;
+        display: flex; flex-direction: column; will-change: transform;
+    }
+
+    /* Aquí está el truco: cover para que llene todo el espacio como el 7 */
+    .reel-strip img {
+        width: 100%; height: 200px;
+        object-fit: cover; /* LLENA TODO EL CUADRADO */
+        display: block;
+    }
+
+    /* Palanca decorativa */
+    .lever-arm { position: absolute; right: -65px; bottom: 120px; width: 18px; height: 120px; background: #999; border-radius: 10px; transform-origin: bottom center; transition: transform 0.5s; }
+    .lever-ball { position: absolute; top: -30px; left: -14px; width: 45px; height: 45px; background: #FF0000; border-radius: 50%; box-shadow: inset -5px -5px 15px rgba(0,0,0,0.5); }
+    .lever-pulled { transform: rotate(180deg); }
+
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 10px; }
+  </style>
+</head>
+<body class="flex flex-col items-center">
+
+  <header class="text-center p-6 w-full">
+    <h1 class="text-4xl md:text-6xl font-extrabold hologram-text mt-2">GRAN AMÉRIAN</h1>
+    <div class="text-orange-400 font-bold text-2xl tracking-widest">CARLOS V</div>
+  </header>
+
+  <main class="flex flex-col lg:flex-row gap-8 p-4 w-full max-w-6xl items-start justify-center">
+    
+    <div class="w-full flex-1 flex flex-col items-center gap-6">
+      <div class="main-display-container relative flex items-center justify-center overflow-hidden">
+        <div id="empty-msg" class="text-center text-blue-300 p-6">
+          <p class="font-bold text-2xl">BINGO CARLOS V</p>
+          <p class="text-sm mt-2">Carga tus videos o fotos y saca una ficha</p>
+        </div>
+        <img id="display-img" class="hidden w-full h-full object-contain p-2 rounded-3xl">
+        <video id="display-vid" class="hidden w-full h-full object-contain p-2 rounded-3xl" loop playsinline></video>
+        <div id="number-badge" class="absolute top-4 left-4 w-14 h-14 bg-orange-600 border-2 border-white rounded-full flex items-center justify-center text-white font-bold text-2xl hidden shadow-lg">1</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 w-full max-w-lg">
+        <label class="btn-3d bg-green-600 text-white p-4 rounded-2xl font-bold cursor-pointer text-center border-b-4 border-green-800">
+          📂 CARGAR BINGO <input type="file" id="bingo-input" multiple accept="image/*,video/*" class="hidden">
+        </label>
+        <button id="draw-btn" class="btn-3d bg-orange-500 text-white p-4 rounded-2xl font-bold border-b-4 border-orange-800">🎲 SACAR FICHA</button>
+        
+        <label class="btn-3d bg-purple-600 text-white p-4 rounded-2xl font-bold cursor-pointer text-center border-b-4 border-purple-800">
+          🎰 CARGAR SLOTS <input type="file" id="slots-input" multiple accept="image/*" class="hidden">
+        </label>
+        <button id="open-slots-btn" class="btn-3d bg-pink-600 text-white p-4 rounded-2xl font-bold border-b-4 border-pink-800">🕹️ JUGAR SLOTS</button>
+      </div>
+    </div>
+
+    <div class="w-full lg:w-80 h-[500px] bg-slate-900/80 p-4 rounded-3xl border-2 border-green-500/50">
+        <h2 class="text-center font-bold text-green-400 mb-4">HISTORIAL BINGO</h2>
+        <div id="history-list" class="overflow-y-auto space-y-3 custom-scroll h-full pb-10"></div>
+    </div>
+  </main>
+
+  <div id="slot-modal" class="fixed inset-0 z-50 hidden bg-black/95 flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-2xl flex flex-col items-center relative">
+        <button id="close-slots" class="absolute -top-16 right-0 text-white text-5xl font-bold">✕</button>
+        
+        <div class="slot-machine-frame">
+            <div class="reels-container">
+                <div class="reel-window"><div class="reel-strip" id="strip-1"><div class="h-[200px] flex items-center justify-center text-5xl">?</div></div></div>
+                <div class="reel-window"><div class="reel-strip" id="strip-2"><div class="h-[200px] flex items-center justify-center text-5xl">?</div></div></div>
+                <div class="reel-window"><div class="reel-strip" id="strip-3"><div class="h-[200px] flex items-center justify-center text-5xl">?</div></div></div>
+            </div>
+            <div class="lever-arm" id="lever-arm"><div class="lever-ball"></div></div>
+        </div>
+
+        <button id="spin-slots-btn" class="mt-10 btn-3d bg-red-600 text-white px-20 py-6 rounded-full font-black text-4xl shadow-[0_0_40px_red]">
+            ¡GIRAR!
+        </button>
+
+        <div id="slot-result" class="hidden mt-8 text-center">
+            <h3 class="text-yellow-400 text-6xl font-black animate-bounce">¡GRAN GANADOR!</h3>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    let bingoFiles = [], bingoRemaining = [], bingoDrawn = [];
+    let slotFiles = [];
+    const SYMBOL_HEIGHT = 200;
+
+    // LÓGICA BINGO
+    document.getElementById('bingo-input').onchange = (e) => {
+      const arr = Array.from(e.target.files);
+      bingoFiles = arr.map((f, i) => ({ id: i, url: URL.createObjectURL(f), type: f.type.startsWith('video') ? 'video' : 'img', name: f.name }));
+      bingoRemaining = [...bingoFiles]; bingoDrawn = [];
+      alert("Bingo cargado: " + bingoFiles.length + " archivos.");
+    };
+
+    document.getElementById('draw-btn').onclick = () => {
+      if (!bingoRemaining.length) return alert("Carga o reinicia el Bingo");
+      document.getElementById('display-vid').pause();
+      const idx = Math.floor(Math.random() * bingoRemaining.length);
+      const item = bingoRemaining.splice(idx, 1)[0];
+      bingoDrawn.push(item);
+
+      document.getElementById('empty-msg').classList.add('hidden');
+      document.getElementById('display-img').classList.add('hidden');
+      document.getElementById('display-vid').classList.add('hidden');
+
+      if(item.type === 'img') {
+        document.getElementById('display-img').src = item.url;
+        document.getElementById('display-img').classList.remove('hidden');
+      } else {
+        document.getElementById('display-vid').src = item.url;
+        document.getElementById('display-vid').classList.remove('hidden');
+        document.getElementById('display-vid').play();
+      }
+      
+      document.getElementById('number-badge').innerText = bingoDrawn.length;
+      document.getElementById('number-badge').classList.remove('hidden');
+
+      const thumb = document.createElement('div');
+      thumb.className = "bg-slate-800 p-2 rounded border border-slate-600 flex items-center gap-2 text-white";
+      thumb.innerHTML = `<span class="bg-orange-500 w-8 h-8 flex items-center justify-center rounded font-bold">${bingoDrawn.length}</span><span class="text-sm truncate">${item.name}</span>`;
+      document.getElementById('history-list').prepend(thumb);
+    };
+
+    // LÓGICA SLOTS
+    document.getElementById('slots-input').onchange = (e) => {
+      const arr = Array.from(e.target.files).filter(f => f.type.startsWith('image'));
+      slotFiles = arr.map((f, i) => ({ id: i, url: URL.createObjectURL(f) }));
+      alert("Slots cargado: " + slotFiles.length + " imágenes.");
+    };
+
+    document.getElementById('open-slots-btn').onclick = () => {
+        document.getElementById('slot-modal').classList.remove('hidden');
+        document.getElementById('slot-result').classList.add('hidden');
+    };
+    document.getElementById('close-slots').onclick = () => document.getElementById('slot-modal').classList.add('hidden');
+
+    document.getElementById('spin-slots-btn').onclick = () => {
+        if(!slotFiles.length) return alert("Carga imágenes para los slots primero.");
+        const btn = document.getElementById('spin-slots-btn');
+        btn.disabled = true;
+        document.getElementById('slot-result').classList.add('hidden');
+        document.getElementById('lever-arm').classList.add('lever-pulled');
+        setTimeout(() => document.getElementById('lever-arm').classList.remove('lever-pulled'), 600);
+
+        const winner = slotFiles[Math.floor(Math.random() * slotFiles.length)];
+        const strips = [document.getElementById('strip-1'), document.getElementById('strip-2'), document.getElementById('strip-3')];
+
+        strips.forEach((strip, index) => {
+            strip.innerHTML = '';
+            const loops = 5 + (index * 2);
+            let html = '';
+            for(let l=0; l<loops; l++) {
+                let shuffled = [...slotFiles].sort(() => Math.random() - 0.5);
+                shuffled.forEach(img => html += `<img src="${img.url}">`);
+            }
+            html += `<img src="${winner.url}">`;
+            strip.innerHTML = html;
+
+            const totalImgs = (slotFiles.length * loops) + 1;
+            const finalPos = -((totalImgs - 1) * SYMBOL_HEIGHT);
+            
+            strip.style.transition = 'none';
+            strip.style.transform = 'translateY(0)';
+            void strip.offsetWidth;
+            
+            const duration = 3 + (index * 1);
+            strip.style.transition = `transform ${duration}s cubic-bezier(0.1, 0.9, 0.3, 1.05)`;
+            strip.style.transform = `translateY(${finalPos}px)`;
+            
+            if(index === 2) {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    document.getElementById('slot-result').classList.remove('hidden');
+                }, duration * 1000);
+            }
+        });
+    };
+  </script>
+</body>
+</html>
