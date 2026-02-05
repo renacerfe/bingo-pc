@@ -1,21 +1,33 @@
 name: Fabrica-de-Software
+
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
+      - name: Descargar repositorio
+        uses: actions/checkout@v3
+
+      - name: Instalar Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-      - name: Instalar Neutralino CLI
+          node-version: 18
+
+      - name: Instalar Neutralino
         run: npm install -g @neutralinojs/neu
-      - name: Compilar Programa
+
+      - name: Entrar al proyecto
+        run: cd www
+
+      - name: Compilar programa
         run: |
+          cd www
           neu build --release
-      - name: Subir el archivo final
+
+      - name: Subir ejecutable
         uses: actions/upload-artifact@v3
         with:
           name: MiBingo-PC
-          path: dist/
+          path: www/dist/**
