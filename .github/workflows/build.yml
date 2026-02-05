@@ -18,8 +18,11 @@ jobs:
       - name: Instalar Neutralino
         run: npm install -g @neutralinojs/neu
 
+      - name: Inicializar Neutralino
+        run: neu update
+
       - name: Compilar programa
-        run: neu build --release --config-file neutralino.config.json
+        run: neu build --release
 
       - name: Subir ejecutable
         uses: actions/upload-artifact@v4
