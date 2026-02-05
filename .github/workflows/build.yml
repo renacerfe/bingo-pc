@@ -18,16 +18,11 @@ jobs:
       - name: Instalar Neutralino
         run: npm install -g @neutralinojs/neu
 
-      - name: Entrar al proyecto
-        run: cd www
-
       - name: Compilar programa
-        run: |
-          cd www
-          neu build --release
+        run: neu build --release --config-file neutralino.config.json
 
       - name: Subir ejecutable
         uses: actions/upload-artifact@v3
         with:
           name: MiBingo-PC
-          path: www/dist/**
+          path: dist/**
