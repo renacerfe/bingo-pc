@@ -1,0 +1,18 @@
+name: Fabrica-de-Software
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+      - name: Instalar Neu
+        run: npm install -g @neutralinojs/neu
+      - name: Compilar
+        run: neu build
+      - name: Entregar
+        uses: actions/upload-artifact@v2
+        with:
+          name: MiBingo-PC
+          path: dist/
