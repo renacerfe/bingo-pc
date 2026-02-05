@@ -1,32 +1,23 @@
 name: Fabrica-de-Software
-
 on: [push]
-
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
-
       - name: Instalar Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
-
       - name: Instalar Neutralino
         run: npm install -g @neutralinojs/neu
-
-      - name: Inicializar Neutralino
-        run: neu update
-
-      - name: Compilar programa
-        run: neu build --release
-
+      - name: Inicializar y Compilar
+        run: |
+          neu update
+          neu build --release
       - name: Subir ejecutable
         uses: actions/upload-artifact@v4
         with:
-          name: MiBingo-PC
-          # IMPORTANTE: En Windows la ruta suele ser esta para el .exe
-          path: dist/
+          name: MiBingo-PC-Windows
+          path: dist
