@@ -29,4 +29,4 @@ jobs:
         with:
           name: MiBingo-PC
           # IMPORTANTE: En Windows la ruta suele ser esta para el .exe
-          path: dist/bingo/
+          path: dist/
