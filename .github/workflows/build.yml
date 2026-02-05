@@ -18,17 +18,15 @@ jobs:
       - name: Instalar Neutralino
         run: npm install -g @neutralinojs/neu
 
-      - name: Inicializar Neutralino (descarga binarios)
+      - name: Inicializar Neutralino
         run: neu update
 
       - name: Compilar programa
         run: neu build --release
 
-      - name: Mostrar archivos generados (debug)
-        run: dir dist -Recurse
-
       - name: Subir ejecutable
         uses: actions/upload-artifact@v4
         with:
           name: MiBingo-PC
-          path: dist
+          # IMPORTANTE: En Windows la ruta suele ser esta para el .exe
+          path: dist/bingo/
